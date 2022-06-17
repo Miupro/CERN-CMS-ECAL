@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[39]:
+# In[18]:
 
 
 """ This script is used to compute and plot the time deltas of the CMS ECAL prototype from the ETH group at the CERN Prevessin site.
 The mainly used functions to call from outside the script are down below: run_time_delta_computation, statistics_plot, variation_plot, and variation_statistics.
+
+General usage workflow:
+1. Use run_time_delta_computation on all the measurement runs.
+2. Use statistics_plot on the runs to see their statistics.
+3. Use variation_plot to plot the behavior of a measurement batch (multiple runs) with respect to the variation within the measurement (for example temperature).
+4. Use variation_statistics to visualize the statistics of the measurement batches.
 """
 
 """ Imports """
@@ -24,7 +30,7 @@ from pathlib import Path
 
 """ Global Variables """
 
-save_folder_global = 'Synchronisation' # Processed data from time delta computation will be stored in a folder named like this. 
+save_folder_global = 'Synchronisation January 2022' # Processed data from time delta computation will be stored in a folder named like this. 
                                         # The data from January 2022 is in 'Synchronisation January 2022'
 raw_data_folder_global = '/eos/home-s/spigazzi/Lab21/data/Reco/' # Raw data is stored here
 variation_save_folder_global = 'Variation Stats ' # Variation plots are saved here
@@ -43,6 +49,9 @@ channel_names = ['A1', 'A2', 'A3', 'A4', 'A5',
                  'B1', 'B2', 'B3', 'B4', 'B5', # TODO: Add C when board C returns
                  'D1', 'D2', 'D3', 'D4', 'D5',
                  'E1', 'E2', 'E3', 'E4', 'E5']
+
+plt.rcParams['text.usetex'] = True
+
 
 """ Helper Functions """
 
@@ -331,13 +340,13 @@ def variation_statistics(measurement_name, measurement_date, colormesh_max=10, w
                     plt.title(f'{plot_titles[i]}: Within board performance for reference board {letters[k//5]}')
                     plt.show()
 
-                
+            # Colormesh
             plt.figure()
             stat_data = stats_of_stats[:, i, k].reshape(4,5)
             c = plt.pcolormesh(X, Y, stat_data, vmin = 0, vmax = 10)
             cb = plt.colorbar(c)
-            cb.set_label('Deviation over Temperature (ps)')
-            plt.title('Temperature Variation' + '\n' +  f'{plot_titles[i]}, Reference Channel: {ref_channel}')
+            cb.set_label(f'Deviation over ' + measurement_name + f' (ps)')
+            plt.title(measurement_name + '\n' +  f'{plot_titles[i]}, Reference Channel: {ref_channel}')
             plt.savefig(variation_save + f'Variation Stats Colormesh {plot_titles[i]} Ref Channel {to_channel_converter(k)}.pdf', dpi = 300)      
             plt.show()
                 
@@ -352,9 +361,14 @@ def example(number):
         variation_plot('Temperature Variation', '07.02.2022', 
                 included_runs=[15483, 15484, 15487, 15489, 15490, 15491, 15492, 15493, 15500, 15503, 15511, 15513, 15516, 15524, 15525, 15527, 15533, 15541])
     if number==4:
+        variation_plot('Power Cycle', '28.01.2022', 
+                included_runs=[15384, 15387, 15389, 15390, 15395, 15397, 15400, 15401])
+    if number==5:
         variation_statistics('Temperature Variation', '07.02.2022')
+    if number==6:
+        variation_statistics('Power Cycle', '28.01.2022')
         
-        
+
 """ January 2022 Data 
 One can input these into the variation_plot function, or any of the runs into the run_time_delta_computation or statistics_plot functions.
 """
@@ -362,6 +376,12 @@ One can input these into the variation_plot function, or any of the runs into th
 # included_runs = [15384, 15387, 15389, 15390, 15395, 15397, 15400, 15401] Power cycle 2
 # included_runs = [15483, 15484, 15487, 15489, 15490, 15491, 15492, 15493, 15500, 15503, 15511, 15513, 15516, 15524, 15525, 15527, 15533, 15541] # Temperature 07.02.2022
 # included_runs = [15373, 15387, 15422, 15533] # Variation over several days
+
+
+# In[19]:
+
+
+example(6)
 
 
 # In[ ]:
